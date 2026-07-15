@@ -12,7 +12,6 @@ CLIENT = InferenceHTTPClient(
 )
 
 
-
 while True:
     red, image = cap.read()
     if not red:
@@ -21,7 +20,7 @@ while True:
 
     cow = 0
     sheep = 0
-    result = CLIENT.infer("image.jpg", model_id=os.getenv('MODEL_ID'))
+    result = CLIENT.infer(image, model_id=os.getenv('MODEL_ID'))
     for i in result.get('predictions', []):
         x = i['x']
         y = i['y']
@@ -30,15 +29,13 @@ while True:
         confidence = i['confidence']
         class_name = i['class']
 
-        # Calculate box corners (If x,y is the top-left corner)
-        x1, y1 = x, y
-        x2, y2 = x + width, y + height
+
 
         # Alternative: If x,y is the CENTER of the box (common in YOLO/Roboflow)
-        # x1 = int(x - w / 2)
-        # y1 = int(y - h / 2)
-        # x2 = int(x + w / 2)
-        # y2 = int(y + h / 2)
+        x1 = int(x - width / 2)
+        y1 = int(y - height / 2)
+        x2 = int(x + width / 2)
+        y2 = int(y + height / 2)
 
         if class_name.lower() == 'sheep':
             sheep += 1
@@ -55,10 +52,10 @@ while True:
         cv2.putText(image, f'{class_name} {round(confidence, 2)*100}%', (x1, y1-15),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
-    cv2.putText(image, f'sheep count: {sheep}', (x1, y1 - 15),
+    cv2.putText(image, f'sheep count: {sheep}', (20, 40),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 2)
 
-    cv2.putText(image, f'cow count: {cow}', (x1, y1 - 15),
+    cv2.putText(image, f'cow count: {cow}', (20, 40),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 2)
 
 
